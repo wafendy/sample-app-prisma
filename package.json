@@ -1,0 +1,30 @@
+{
+  "name": "smartcompose-prisma",
+  "version": "1.0.0",
+  "description": "",
+  "main": "src/main.ts",
+  "scripts": {
+    "dev": "tsx src/main.ts",
+    "db:migrate": "npx prisma migrate dev",
+    "db:reset": "npx prisma migrate reset",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "prisma": {
+    "seed": "tsx prisma/seed.ts"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/node": "^20.12.4",
+    "tsx": "^4.7.2",
+    "typescript": "^5.4.3"
+  },
+  "dependencies": {
+    "@prisma/client": "^5.12.0",
+    "dotenv": "^16.4.5",
+    "pino": "^8.19.0",
+    "pino-pretty": "^11.0.0",
+    "postgres": "^3.4.4",
+    "prisma": "^5.12.0"
+  }
+}

@@ -1,0 +1,91 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model DocumentSet {
+  id                      Int                       @id @default(autoincrement())
+  name                    String                    @db.VarChar(256)
+  ownerType               String                    @db.VarChar(50)
+  ownerId                 Int
+  createdByTeamId         Int?
+  createdAt               DateTime                  @default(now()) @db.Timestamp(6)
+  updatedAt               DateTime                  @default(now()) @db.Timestamp(6)
+  Team                    Team?                     @relation(fields: [createdByTeamId], references: [id])
+  documentSetsToDocuments DocumentSetsToDocuments[]
+  teamsToDocumentSets     TeamsToDocumentSets[]
+}
+
+model DocumentSetsToDocuments {
+  documentSetId Int
+  documentId    Int
+  createdAt     DateTime     @default(now()) @db.Timestamp(6)
+  updatedAt     DateTime     @default(now()) @db.Timestamp(6)
+  document      Document?    @relation(fields: [documentId], references: [id])
+  documentSet   DocumentSet? @relation(fields: [documentSetId], references: [id])
+
+  @@id([documentSetId, documentId])
+}
+
+model Document {
+  id                      Int                       @id @default(autoincrement())
+  name                    String                    @db.VarChar(256)
+  content                 String?
+  version                 String                    @db.VarChar(50)
+  uploadedById            Int?
+  createdAt               DateTime                  @default(now()) @db.Timestamp(6)
+  updatedAt               DateTime                  @default(now()) @db.Timestamp(6)
+  documentSetsToDocuments DocumentSetsToDocuments[]
+  user                    User?                     @relation(fields: [uploadedById], references: [id])
+}
+
+model Team {
+  id                  Int                   @id @default(autoincrement())
+  name                String                @db.VarChar(100)
+  createdById         Int?
+  createdAt           DateTime              @default(now()) @db.Timestamp(6)
+  updatedAt           DateTime              @default(now()) @db.Timestamp(6)
+  documentSets        DocumentSet[]
+  user                User?                 @relation(fields: [createdById], references: [id])
+  teamsToDocumentSets TeamsToDocumentSets[]
+  teamsToUsers        TeamsToUsers[]
+}
+
+model TeamsToDocumentSets {
+  teamId        Int
+  documentSetId Int
+  createdAt     DateTime     @default(now()) @db.Timestamp(6)
+  updatedAt     DateTime     @default(now()) @db.Timestamp(6)
+  documentSet   DocumentSet? @relation(fields: [documentSetId], references: [id])
+  team          Team?        @relation(fields: [teamId], references: [id])
+
+  @@id([teamId, documentSetId])
+}
+
+model TeamsToUsers {
+  teamId    Int
+  userId    Int
+  isAdmin   Boolean  @default(false)
+  createdAt DateTime @default(now()) @db.Timestamp(6)
+  updatedAt DateTime @default(now()) @db.Timestamp(6)
+  team      Team?    @relation(fields: [teamId], references: [id])
+  user      User?    @relation(fields: [userId], references: [id])
+
+  @@id([teamId, userId])
+}
+
+model User {
+  id           Int            @id @default(autoincrement())
+  emailAddress String         @db.VarChar(100)
+  emailDomain  String         @db.VarChar(50)
+  isActive     Boolean        @default(true)
+  createdAt    DateTime       @default(now()) @db.Timestamp(6)
+  updatedAt    DateTime       @default(now()) @db.Timestamp(6)
+  documents    Document[]
+  teams        Team[]
+  teamsToUsers TeamsToUsers[]
+}
